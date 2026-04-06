@@ -29,7 +29,7 @@ import {
   ChevronDownIcon,
   TvIcon,
   UserGroupIcon,
-  BookOpenIcon,
+  RectangleStackIcon,
   Cog6ToothIcon,
   ArrowRightStartOnRectangleIcon
 } from '@heroicons/react/24/outline'
@@ -58,6 +58,11 @@ export default function AppLayout({ children, userPreference: propPreference }: 
   const [autoplay, setAutoplay] = useState(true);
   const [notifications, setNotifications] = useState(true);
   const [activeTab, setActiveTab] = useState<string | null>(null);
+
+  const sidebarLinkClass = (active: boolean, extra = '') =>
+    `flex items-center px-4 py-2.5 md:py-2 rounded-lg transition-colors ${extra} ${
+      active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
+    }`;
   
   // Check if this is the user's first visit
   useEffect(() => {
@@ -388,27 +393,31 @@ export default function AppLayout({ children, userPreference: propPreference }: 
             {/* Mobile menu navigation */}
             <nav className="pt-4 px-2 flex-shrink-0">
               <div className="space-y-1">
-                <Link href="/" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/" className={sidebarLinkClass(pathname === '/')}>
                   <HomeIcon className="h-6 w-6 mr-3" />
                   <span>Home</span>
                 </Link>
-                <Link href="/for-you" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/library" className={sidebarLinkClass(pathname.startsWith('/library'))}>
+                  <RectangleStackIcon className="h-6 w-6 mr-3" />
+                  <span>Library</span>
+                </Link>
+                <Link href="/for-you" className={sidebarLinkClass(pathname.startsWith('/for-you'))}>
                   <SparklesIcon className="h-6 w-6 mr-3" />
                   <span>For You</span>
                 </Link>
-                <Link href="/live" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/live" className={sidebarLinkClass(pathname.startsWith('/live'))}>
                   <VideoCameraIcon className="h-6 w-6 mr-3" />
                   <span>Live</span>
                 </Link>
-                <Link href="/channels" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/channels" className={sidebarLinkClass(pathname.startsWith('/channels'))}>
                   <FilmIcon className="h-6 w-6 mr-3" />
                   <span>Channels</span>
                 </Link>
-                <Link href="/models" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/models" className={sidebarLinkClass(pathname.startsWith('/models'))}>
                   <HeartIcon className="h-6 w-6 mr-3" />
                   <span>Models</span>
                 </Link>
-                <Link href="/music" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+                <Link href="/music" className={sidebarLinkClass(pathname.startsWith('/music'))}>
                   <MusicalNoteIcon className="h-6 w-6 mr-3" />
                   <span>Music</span>
                 </Link>
@@ -445,27 +454,31 @@ export default function AppLayout({ children, userPreference: propPreference }: 
         <aside className="hidden md:block w-64 bg-gray-800 text-white min-h-screen fixed top-14">
           <nav className="pt-4">
             <div className="px-2 space-y-1">
-              <Link href="/" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/" className={sidebarLinkClass(pathname === '/', 'px-4 py-2')}>
                 <HomeIcon className="h-6 w-6 mr-3" />
                 <span>Home</span>
               </Link>
-              <Link href="/for-you" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/library" className={sidebarLinkClass(pathname.startsWith('/library'), 'px-4 py-2')}>
+                <RectangleStackIcon className="h-6 w-6 mr-3" />
+                <span>Library</span>
+              </Link>
+              <Link href="/for-you" className={sidebarLinkClass(pathname.startsWith('/for-you'), 'px-4 py-2')}>
                 <SparklesIcon className="h-6 w-6 mr-3" />
                 <span>For You</span>
               </Link>
-              <Link href="/live" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/live" className={sidebarLinkClass(pathname.startsWith('/live'), 'px-4 py-2')}>
                 <VideoCameraIcon className="h-6 w-6 mr-3" />
                 <span>Live</span>
               </Link>
-              <Link href="/channels" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/channels" className={sidebarLinkClass(pathname.startsWith('/channels'), 'px-4 py-2')}>
                 <FilmIcon className="h-6 w-6 mr-3" />
                 <span>Channels</span>
               </Link>
-              <Link href="/models" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/models" className={sidebarLinkClass(pathname.startsWith('/models'), 'px-4 py-2')}>
                 <HeartIcon className="h-6 w-6 mr-3" />
                 <span>Models</span>
               </Link>
-              <Link href="/music" className="flex items-center px-4 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
+              <Link href="/music" className={sidebarLinkClass(pathname.startsWith('/music'), 'px-4 py-2')}>
                 <MusicalNoteIcon className="h-6 w-6 mr-3" />
                 <span>Music</span>
               </Link>
