@@ -34,12 +34,32 @@ import {
 import { CurrencyDollarIcon as CurrencyDollarIconSolid } from '@heroicons/react/24/solid'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import KycVerificationModal, { KYC_STORAGE_KEY } from '../../components/KycVerificationModal'
 
-/** Flip to false when creator verification ships — removes blur + banner. */
+/** Flip to false to skip KYC gate entirely (e.g. internal QA). */
 const CREATOR_VERIFICATION_PENDING = true
+
+function readKycComplete(): boolean {
+  if (typeof window === 'undefined') return false
+  try {
+    const v = localStorage.getItem(KYC_STORAGE_KEY)
+    if (!v) return false
+    if (v === '1') return true
+    const o = JSON.parse(v) as { verifiedAt?: string }
+    return Boolean(o?.verifiedAt)
+  } catch {
+    return false
+  }
+}
 
 export default function ProfilePage() {
   const router = useRouter()
+  const [kycComplete, setKycComplete] = useState(false)
+
+  useEffect(() => {
+    setKycComplete(readKycComplete())
+  }, [])
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [activeTab, setActiveTab] = useState<'photos' | 'videos' | 'favorites' | 'history' | 'messages' | 'wallet'>('photos')
   const [isFollowing, setIsFollowing] = useState(false)
@@ -866,12 +886,21 @@ export default function ProfilePage() {
     }
   }
 
+  const showKycGate = CREATOR_VERIFICATION_PENDING && !kycComplete
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {showKycGate && (
+        <KycVerificationModal
+          onComplete={() => {
+            setKycComplete(true)
+          }}
+        />
+      )}
       <div className="relative">
         <div
           className={
-            CREATOR_VERIFICATION_PENDING
+            showKycGate
               ? 'blur-md saturate-75 transition-[filter] duration-300 pointer-events-auto'
               : ''
           }
@@ -1159,20 +1188,6 @@ export default function ProfilePage() {
         </motion.div>
       </div>
         </div>
-
-        {CREATOR_VERIFICATION_PENDING && (
-          <div
-            className="pointer-events-none absolute inset-0 z-40 flex items-start justify-center pt-16 sm:pt-24 px-4"
-            aria-live="polite"
-          >
-            <div className="pointer-events-auto rounded-xl border border-amber-500/35 bg-gray-950/90 backdrop-blur-md px-5 py-4 max-w-md text-center shadow-2xl">
-              <p className="text-sm font-semibold text-amber-200">Verification pending</p>
-              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                Creator studio stays interactive below, but content is blurred until verification is complete.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Wallet Modal */}
