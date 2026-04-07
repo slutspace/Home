@@ -42,11 +42,11 @@ export default function HomePage() {
                   Open Library
                 </Link>
                 <Link
-                  href="/for-you"
+                  href="/live/2"
                   className="inline-flex items-center gap-2 rounded-full border border-gray-600 bg-gray-800/80 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
                 >
                   <SparklesIcon className="h-5 w-5" />
-                  For You feed
+                  For You stream
                 </Link>
               </div>
             </div>
@@ -96,8 +96,8 @@ export default function HomePage() {
           <h2 className="text-xl font-semibold text-white mb-4">Explore</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <ExploreCard href="/library" icon={RectangleStackIcon} title="Library" subtitle="Full catalog & sort" />
-            <ExploreCard href="/for-you" icon={SparklesIcon} title="For You" subtitle="Personalized picks" />
-            <ExploreCard href="/live" icon={VideoCameraIcon} title="Live" subtitle="Streams & chat" />
+            <ExploreCard href="/live/2" icon={SparklesIcon} title="For You" subtitle="Your live stream" />
+            <ExploreCard href="/live" icon={VideoCameraIcon} title="Live" subtitle="Browse & filter streams" />
             <ExploreCard href="/profile/become-creator" icon={VideoCameraIcon} title="Go creator" subtitle="Start earning" accent />
             <ExploreCard href="/settings" icon={Cog6ToothIcon} title="Settings" subtitle="Account & privacy" />
           </div>

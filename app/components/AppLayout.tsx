@@ -58,6 +58,12 @@ export default function AppLayout({ children, userPreference: propPreference }: 
     `flex items-center px-4 py-2.5 md:py-2 rounded-lg transition-colors ${extra} ${
       active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
     }`;
+
+  /** Immersive stream: /live/:id or legacy /for-you/feed (not /live browse). */
+  const isForYouWatchRoute =
+    pathname.startsWith('/for-you') ||
+    (pathname !== '/live' && /^\/live\/[^/]+$/.test(pathname));
+  const isLiveBrowseRoute = pathname === '/live';
   
   // Check if this is the user's first visit
   useEffect(() => {
@@ -363,11 +369,11 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                   <RectangleStackIcon className="h-6 w-6 mr-3" />
                   <span>Library</span>
                 </Link>
-                <Link href="/for-you" className={sidebarLinkClass(pathname.startsWith('/for-you'))}>
+                <Link href="/live/2" className={sidebarLinkClass(isForYouWatchRoute)}>
                   <SparklesIcon className="h-6 w-6 mr-3" />
                   <span>For You</span>
                 </Link>
-                <Link href="/live" className={sidebarLinkClass(pathname.startsWith('/live'))}>
+                <Link href="/live" className={sidebarLinkClass(isLiveBrowseRoute)}>
                   <VideoCameraIcon className="h-6 w-6 mr-3" />
                   <span>Live</span>
                 </Link>
@@ -412,11 +418,11 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                 <RectangleStackIcon className="h-6 w-6 mr-3" />
                 <span>Library</span>
               </Link>
-              <Link href="/for-you" className={sidebarLinkClass(pathname.startsWith('/for-you'), 'px-4 py-2')}>
+              <Link href="/live/2" className={sidebarLinkClass(isForYouWatchRoute, 'px-4 py-2')}>
                 <SparklesIcon className="h-6 w-6 mr-3" />
                 <span>For You</span>
               </Link>
-              <Link href="/live" className={sidebarLinkClass(pathname.startsWith('/live'), 'px-4 py-2')}>
+              <Link href="/live" className={sidebarLinkClass(isLiveBrowseRoute, 'px-4 py-2')}>
                 <VideoCameraIcon className="h-6 w-6 mr-3" />
                 <span>Live</span>
               </Link>

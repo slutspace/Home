@@ -19,6 +19,54 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Site scrollbars — dark gray, not default white */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #111827;
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 5px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.scrollbar-site {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #0f172a;
+}
+
+.scrollbar-site::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scrollbar-site::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-radius: 4px;
+}
+
+.scrollbar-site::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.scrollbar-site::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
 @layer components {
   .btn {
     @apply bg-instagram-blue text-white px-4 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 transition-colors;
