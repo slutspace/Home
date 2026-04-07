@@ -10,9 +10,6 @@ import {
   RectangleStackIcon,
   SparklesIcon,
   VideoCameraIcon,
-  FilmIcon,
-  HeartIcon,
-  MusicalNoteIcon,
   ClockIcon,
   UserCircleIcon,
   Cog6ToothIcon,
@@ -97,13 +94,10 @@ export default function HomePage() {
 
         <section>
           <h2 className="text-xl font-semibold text-white mb-4">Explore</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <ExploreCard href="/library" icon={RectangleStackIcon} title="Library" subtitle="Full catalog & sort" />
             <ExploreCard href="/for-you" icon={SparklesIcon} title="For You" subtitle="Personalized picks" />
             <ExploreCard href="/live" icon={VideoCameraIcon} title="Live" subtitle="Streams & chat" />
-            <ExploreCard href="/channels" icon={FilmIcon} title="Channels" subtitle="Creators you follow" />
-            <ExploreCard href="/models" icon={HeartIcon} title="Models" subtitle="Profiles & posts" />
-            <ExploreCard href="/music" icon={MusicalNoteIcon} title="Music" subtitle="Audio & playlists" />
             <ExploreCard href="/profile/become-creator" icon={VideoCameraIcon} title="Go creator" subtitle="Start earning" accent />
             <ExploreCard href="/settings" icon={Cog6ToothIcon} title="Settings" subtitle="Account & privacy" />
           </div>

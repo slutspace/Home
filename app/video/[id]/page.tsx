@@ -150,11 +150,11 @@ export default function VideoPage({ params }: { params: { id: string } }) {
         {/* Back Button */}
         <div className="container mx-auto px-4 py-4">
           <Link 
-            href="/channels"
+            href="/library"
             className="inline-flex items-center text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Back to Channels
+            Back to Library
           </Link>
         </div>
 
@@ -251,7 +251,7 @@ export default function VideoPage({ params }: { params: { id: string } }) {
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Link href={`/channel/${video.channel.id}`} className="flex items-center gap-3">
+                <Link href={`/profile/${video.channel.id}`} className="flex items-center gap-3">
                   <img 
                     src={video.channel.avatar} 
                     alt={video.channel.name}

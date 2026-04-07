@@ -6,9 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { 
   HomeIcon, 
   FireIcon,
-  MusicalNoteIcon,
   VideoCameraIcon,
-  FilmIcon,
   BookmarkIcon,
   ClockIcon,
   LightBulbIcon,
@@ -409,18 +407,6 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                   <VideoCameraIcon className="h-6 w-6 mr-3" />
                   <span>Live</span>
                 </Link>
-                <Link href="/channels" className={sidebarLinkClass(pathname.startsWith('/channels'))}>
-                  <FilmIcon className="h-6 w-6 mr-3" />
-                  <span>Channels</span>
-                </Link>
-                <Link href="/models" className={sidebarLinkClass(pathname.startsWith('/models'))}>
-                  <HeartIcon className="h-6 w-6 mr-3" />
-                  <span>Models</span>
-                </Link>
-                <Link href="/music" className={sidebarLinkClass(pathname.startsWith('/music'))}>
-                  <MusicalNoteIcon className="h-6 w-6 mr-3" />
-                  <span>Music</span>
-                </Link>
               </div>
             </nav>
 
@@ -469,18 +455,6 @@ export default function AppLayout({ children, userPreference: propPreference }: 
               <Link href="/live" className={sidebarLinkClass(pathname.startsWith('/live'), 'px-4 py-2')}>
                 <VideoCameraIcon className="h-6 w-6 mr-3" />
                 <span>Live</span>
-              </Link>
-              <Link href="/channels" className={sidebarLinkClass(pathname.startsWith('/channels'), 'px-4 py-2')}>
-                <FilmIcon className="h-6 w-6 mr-3" />
-                <span>Channels</span>
-              </Link>
-              <Link href="/models" className={sidebarLinkClass(pathname.startsWith('/models'), 'px-4 py-2')}>
-                <HeartIcon className="h-6 w-6 mr-3" />
-                <span>Models</span>
-              </Link>
-              <Link href="/music" className={sidebarLinkClass(pathname.startsWith('/music'), 'px-4 py-2')}>
-                <MusicalNoteIcon className="h-6 w-6 mr-3" />
-                <span>Music</span>
               </Link>
             </div>
           </nav>
