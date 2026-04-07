@@ -246,7 +246,7 @@ export default function AppLayout({ children, userPreference: propPreference }: 
         </div>
       </header>
 
-      <main className={`w-full flex-1 min-w-0 overflow-x-hidden ${isHomeRoute ? '' : 'p-4 md:p-6'}`}>
+      <main className="w-full flex-1 min-w-0 overflow-x-hidden p-4 md:p-6">
         {children}
       </main>
     </div>
