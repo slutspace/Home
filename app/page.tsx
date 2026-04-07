@@ -26,11 +26,7 @@ const continueWatching = allVideos
   .slice(0, 4)
 
 const profileNavLinks = [
-  { label: 'My Profile', href: '/profile' },
   { label: 'Videos', href: '/library' },
-  { label: 'Short videos', href: '/library' },
-  { label: 'Galleries', href: '/profile/creator' },
-  { label: 'Posts', href: '/community' },
   { label: 'Friends', href: '/community' },
   { label: 'Favorites', href: '/profile/favorites' },
 ] as const
@@ -276,31 +272,31 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <ClockIcon className="h-6 w-6 text-gray-400" />
+        <section className="text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-4">
+            <h2 className="text-xl font-semibold text-white inline-flex items-center gap-2 justify-center">
+              <ClockIcon className="h-6 w-6 text-gray-400 shrink-0" />
               Continue watching
             </h2>
-            <Link href="/profile/history" className="text-sm text-red-400 hover:text-red-300 flex items-center gap-1">
+            <Link href="/profile/history" className="text-sm text-red-400 hover:text-red-300 inline-flex items-center gap-1">
               View history
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-site">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 pb-2 scrollbar-site">
             {continueWatching.map((video) => (
               <Link
                 key={video.id}
                 href={`/video/${video.id}`}
-                className="flex-shrink-0 w-44 md:w-52 group"
+                className="flex-shrink-0 w-44 md:w-52 group flex flex-col items-center text-center"
               >
-                <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800 border border-gray-700 group-hover:border-red-500/50 transition-colors">
+                <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-800 border border-gray-700 group-hover:border-red-500/50 transition-colors">
                   <Image src={video.thumbnail} alt="" fill className="object-cover" />
                   <span className="absolute bottom-2 right-2 text-xs bg-black/75 px-1.5 py-0.5 rounded text-white">
                     {video.duration}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-white line-clamp-2 group-hover:text-red-400 transition-colors">
+                <p className="mt-2 text-sm text-white line-clamp-2 group-hover:text-red-400 transition-colors w-full">
                   {video.title}
                 </p>
                 <p className="text-xs text-gray-500">{video.posted}</p>
