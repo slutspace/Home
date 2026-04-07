@@ -2,15 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import {
-  UserCircleIcon,
-  ClockIcon,
-  HeartIcon,
-  WalletIcon,
-  Cog6ToothIcon,
-  VideoCameraIcon,
-  FilmIcon,
-} from '@heroicons/react/24/outline'
+import { UserCircleIcon, ClockIcon, HeartIcon, FilmIcon } from '@heroicons/react/24/outline'
 
 function linkActive(pathname: string, href: string, match: 'exact' | 'prefix') {
   if (match === 'exact') return pathname === href
@@ -36,9 +28,6 @@ export default function ConsumerHubShell({
     { href: overviewHref, label: 'Overview', icon: UserCircleIcon, match: 'exact' },
     { href: '/profile/history', label: 'History', icon: ClockIcon, match: 'prefix' },
     { href: '/profile/favorites', label: 'Favorites', icon: HeartIcon, match: 'prefix' },
-    { href: '/wallet', label: 'Wallet', icon: WalletIcon, match: 'prefix' },
-    { href: '/settings', label: 'Account settings', icon: Cog6ToothIcon, match: 'prefix' },
-    { href: '/profile/become-creator', label: 'Become a creator', icon: VideoCameraIcon, match: 'prefix' },
     { href: '/profile/creator', label: 'Creator studio', icon: FilmIcon, match: 'prefix' },
   ]
 
@@ -47,7 +36,7 @@ export default function ConsumerHubShell({
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">My profile</h1>
         <p className="text-sm text-gray-400 mt-1">
-          Consumer hub — history, saves, wallet, settings, and the path to publishing.
+          Consumer hub — history, saves, and the path to publishing.
         </p>
       </div>
 

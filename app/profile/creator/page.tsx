@@ -35,6 +35,9 @@ import { CurrencyDollarIcon as CurrencyDollarIconSolid } from '@heroicons/react/
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
+/** Flip to false when creator verification ships — removes blur + banner. */
+const CREATOR_VERIFICATION_PENDING = true
+
 export default function ProfilePage() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -865,6 +868,14 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <div className="relative">
+        <div
+          className={
+            CREATOR_VERIFICATION_PENDING
+              ? 'blur-md saturate-75 transition-[filter] duration-300 pointer-events-auto'
+              : ''
+          }
+        >
       {/* Header - removed 'sticky top-0' class so it scrolls away */}
       <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1146,6 +1157,22 @@ export default function ProfilePage() {
         >
           {renderContentByTab()}
         </motion.div>
+      </div>
+        </div>
+
+        {CREATOR_VERIFICATION_PENDING && (
+          <div
+            className="pointer-events-none absolute inset-0 z-40 flex items-start justify-center pt-16 sm:pt-24 px-4"
+            aria-live="polite"
+          >
+            <div className="pointer-events-auto rounded-xl border border-amber-500/35 bg-gray-950/90 backdrop-blur-md px-5 py-4 max-w-md text-center shadow-2xl">
+              <p className="text-sm font-semibold text-amber-200">Verification pending</p>
+              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+                Creator studio stays interactive below, but content is blurred until verification is complete.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Wallet Modal */}
