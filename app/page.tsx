@@ -58,15 +58,16 @@ export default function HomePage() {
         <section className="rounded-2xl border border-gray-700 bg-gray-800/30 overflow-hidden">
           <div className="grid lg:grid-cols-5 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-700">
             <div className="lg:col-span-3 p-6 md:p-8 space-y-6">
-              <div className="flex flex-col xl:flex-row xl:items-stretch gap-4 xl:gap-6">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-4 flex-1 min-w-0">
+              {/* Always side-by-side with identity (scroll horizontally on very narrow screens) */}
+              <div className="flex flex-row flex-nowrap items-stretch gap-4 min-w-0 overflow-x-auto overflow-y-visible scrollbar-site pb-1 -mx-1 px-1">
+                <div className="flex flex-row items-start gap-4 min-w-0 flex-1">
                   <div
                     className="h-20 w-20 shrink-0 rounded-2xl bg-gradient-to-br from-red-500/30 to-gray-800 border border-gray-600 flex items-center justify-center text-2xl font-bold text-white"
                     aria-hidden
                   >
                     U
                   </div>
-                  <div className="flex-1 min-w-0 space-y-3">
+                  <div className="min-w-0 flex-1 space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-xl font-bold text-white truncate">UpstartAxis38</h2>
                       <span className="text-xs font-medium uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
@@ -91,7 +92,7 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 flex flex-col justify-center xl:max-w-[280px] xl:shrink-0 w-full">
+                <div className="shrink-0 w-[min(100%,17rem)] sm:w-64 self-stretch rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 flex flex-col justify-center">
                   <div className="flex items-start gap-3">
                     <EnvelopeIcon className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
                     <div className="min-w-0 flex-1">
