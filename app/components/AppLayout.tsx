@@ -5,33 +5,19 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { 
   HomeIcon, 
-  FireIcon,
   VideoCameraIcon,
-  BookmarkIcon,
-  ClockIcon,
-  LightBulbIcon,
   MagnifyingGlassIcon,
-  BellIcon,
-  UserCircleIcon,
-  Bars3Icon,
   XMarkIcon,
-  PuzzlePieceIcon,
   SparklesIcon,
   HeartIcon,
   CogIcon,
   ArrowRightOnRectangleIcon,
   WalletIcon,
-  CurrencyDollarIcon,
-  PlusCircleIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-  TvIcon,
-  UserGroupIcon,
   RectangleStackIcon,
-  Cog6ToothIcon,
-  ArrowRightStartOnRectangleIcon
+  ArrowRightStartOnRectangleIcon,
+  EllipsisHorizontalIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline'
-import { CheckIcon } from '@heroicons/react/24/solid'
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -39,61 +25,42 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, userPreference: propPreference }: AppLayoutProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userPreference, setUserPreference] = useState<'submissive' | 'dominant' | null>(null);
-  const [userColor, setUserColor] = useState<'purple' | 'red' | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isFirstVisit, setIsFirstVisit] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [autoplay, setAutoplay] = useState(true);
-  const [notifications, setNotifications] = useState(true);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
-
-  const sidebarLinkClass = (active: boolean, extra = '') =>
-    `flex items-center px-4 py-2.5 md:py-2 rounded-lg transition-colors ${extra} ${
-      active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700'
-    }`;
 
   /** Immersive stream: /live/:id or legacy /for-you/feed (not /live browse). */
   const isForYouWatchRoute =
     pathname.startsWith('/for-you') ||
     (pathname !== '/live' && /^\/live\/[^/]+$/.test(pathname));
   const isLiveBrowseRoute = pathname === '/live';
-  
-  // Check if this is the user's first visit
-  useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisited');
-    if (hasVisited) {
-      setIsFirstVisit(false);
-    } else {
-      localStorage.setItem('hasVisited', 'true');
-    }
-  }, []);
+  const isLibraryRoute = pathname.startsWith('/library');
+  const isHomeRoute = pathname === '/';
 
-  // Check authentication status on mount
+  const navIconBtn = (active: boolean) =>
+    `p-2 rounded-lg transition-colors ${
+      active ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-700/80'
+    }`;
+
   useEffect(() => {
     const authStatus = localStorage.getItem('isAuthenticated');
     setIsAuthenticated(authStatus === 'true');
   }, []);
 
-  // Function to clear user preference
   const clearUserPreference = () => {
     localStorage.removeItem('userPreference');
     setUserPreference(null);
   };
 
-  // Check localStorage for user preference on mount and update when prop changes
   useEffect(() => {
     const savedPreference = localStorage.getItem('userPreference') as 'submissive' | 'dominant' | null;
     setUserPreference(propPreference || savedPreference || null);
   }, [propPreference]);
 
-  // Handle search submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -101,88 +68,36 @@ export default function AppLayout({ children, userPreference: propPreference }: 
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsProfileDropdownOpen(false);
       }
     }
-    
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  
-  // Handle body scroll when mobile menu is open
-  useEffect(() => {
-    // Only run in browser environment
-    if (typeof window === 'undefined') return;
-    
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen]);
-  
-  // set active tab when page loads
-  useEffect(() => {
-    const route = pathname.split('/')[1];
-    setActiveTab(route || 'home');
-  }, [pathname]);
 
-  // Handle animations for clicked tab
-  const handleTabClick = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  // Update user color based on preference
-  useEffect(() => {
-    if (userPreference === 'submissive') {
-      setUserColor('purple');
-    } else if (userPreference === 'dominant') {
-      setUserColor('red');
-    } else {
-      setUserColor(null);
-    }
-  }, [userPreference]);
-
-  // Add logout function
   const handleLogout = () => {
-    // Clear all user-related data from localStorage
     localStorage.removeItem('userPreference');
     localStorage.removeItem('hasVisited');
     localStorage.removeItem('isAuthenticated');
-    
-    // Update authentication state
     setIsAuthenticated(false);
-    
-    // Close the dropdown
     setIsProfileDropdownOpen(false);
-    
-    // Redirect to home page
     router.push('/');
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Header — in document flow (scrolls with page), not sticky */}
-      <header className="bg-gray-800 relative z-50 border-b border-gray-700">
-        <div className="flex justify-between items-center h-14 px-4">
-          {/* Left section - Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-red-500">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
+      <header className="bg-gray-800 relative z-50 border-b border-gray-700 shrink-0">
+        <div className="flex justify-between items-center h-14 px-3 sm:px-4 gap-2">
+          <div className="flex items-center shrink-0">
+            <Link href="/" className="text-lg sm:text-xl font-bold text-red-500">
               SlutSpace
             </Link>
           </div>
 
-          {/* Middle section - Search */}
-          <div className="hidden md:flex items-center flex-1 max-w-2xl mx-4">
+          <div className="hidden md:flex items-center flex-1 max-w-2xl mx-3 min-w-0">
             <form onSubmit={handleSearch} className="relative w-full">
               <input
                 type="text"
@@ -200,64 +115,70 @@ export default function AppLayout({ children, userPreference: propPreference }: 
             </form>
           </div>
 
-          {/* Mobile search - visible on mobile */}
-          <div className="flex md:hidden items-center flex-1 max-w-xs mx-2">
+          <div className="flex md:hidden items-center flex-1 min-w-0 max-w-[140px] xs:max-w-xs mx-1">
             <form onSubmit={handleSearch} className="relative w-full">
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-full pl-4 pr-8 py-1.5 text-sm text-white placeholder-gray-400 focus:outline-none"
+                className="w-full bg-gray-700 border border-gray-600 rounded-full pl-3 pr-8 py-1.5 text-sm text-white placeholder-gray-400 focus:outline-none"
               />
-              <button 
-                type="submit"
-                className="absolute right-2 top-1.5 text-gray-400"
-              >
-                <MagnifyingGlassIcon className="h-5 w-5" />
+              <button type="submit" className="absolute right-2 top-1.5 text-gray-400">
+                <MagnifyingGlassIcon className="h-4 w-4" />
               </button>
             </form>
           </div>
 
-          {/* Right section - User controls */}
-          <div className="flex items-center space-x-1">
-            {/* Preference indicator - visible on desktop */}
+          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
             {userPreference && (
               <div 
                 onClick={clearUserPreference}
-                className={`hidden md:flex items-center preference-indicator preference-${userPreference} px-3 py-1.5 rounded-full cursor-pointer bg-gray-700/30 hover:bg-gray-700/50 transition-all group`}
-                title={`Click to remove your ${userPreference} preference`}
+                className={`hidden sm:flex items-center preference-indicator preference-${userPreference} px-2 py-1 rounded-full cursor-pointer bg-gray-700/30 hover:bg-gray-700/50 transition-all group`}
+                title={`Remove ${userPreference} preference`}
               >
-                <HeartIcon className={`h-5 w-5 mr-1.5 ${userPreference === 'dominant' ? 'text-red-500 animate-heart-pulse-red' : 'text-purple-500 animate-heart-pulse-purple'}`} />
-                <span className="text-sm font-medium capitalize">{userPreference}</span>
-                <XMarkIcon className="h-4 w-4 ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <HeartIcon className={`h-4 w-4 sm:mr-1 ${userPreference === 'dominant' ? 'text-red-500 animate-heart-pulse-red' : 'text-purple-500 animate-heart-pulse-purple'}`} />
+                <span className="text-xs font-medium capitalize hidden md:inline">{userPreference}</span>
+                <XMarkIcon className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" />
               </div>
             )}
-
-            {/* Preference indicator - visible on mobile, enhanced */}
             {userPreference && (
               <div 
                 onClick={clearUserPreference}
-                className={`md:hidden p-2 preference-indicator preference-${userPreference} rounded-full bg-gray-700/30 hover:bg-gray-700/50 active:bg-gray-700/70 transition-all cursor-pointer`}
-                title={`Click to remove your ${userPreference} preference`}
+                className={`sm:hidden p-2 rounded-full bg-gray-700/30 preference-indicator preference-${userPreference}`}
+                title="Remove preference"
               >
-                <HeartIcon className={`h-6 w-6 ${userPreference === 'dominant' ? 'text-red-500 animate-heart-pulse-red' : 'text-purple-500 animate-heart-pulse-purple'}`} />
+                <HeartIcon className={`h-5 w-5 ${userPreference === 'dominant' ? 'text-red-500' : 'text-purple-500'}`} />
               </div>
             )}
 
-            {/* Profile button with dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <Link href="/library" className={navIconBtn(isLibraryRoute)} title="Library" aria-label="Library">
+              <RectangleStackIcon className="h-6 w-6" />
+            </Link>
+            <Link href="/live/2" className={navIconBtn(isForYouWatchRoute)} title="For You" aria-label="For You">
+              <SparklesIcon className="h-6 w-6" />
+            </Link>
+            <Link href="/live" className={navIconBtn(isLiveBrowseRoute)} title="Live" aria-label="Live">
+              <VideoCameraIcon className="h-6 w-6" />
+            </Link>
+
+            <Link href="/" className={navIconBtn(isHomeRoute)} title="Home" aria-label="Home">
+              <HomeIcon className="h-6 w-6" />
+            </Link>
+
+            <div className="relative border-l border-gray-700 pl-1 ml-0.5" ref={dropdownRef}>
               <button 
+                type="button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)} 
-                className="p-2 text-gray-400 hover:text-white focus:outline-none"
-                aria-label="Open profile menu"
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/80 focus:outline-none"
+                aria-label="Account menu"
+                aria-expanded={isProfileDropdownOpen}
               >
-                <UserCircleIcon className="h-6 w-6" />
+                <EllipsisHorizontalIcon className="h-6 w-6" />
               </button>
               
-              {/* Profile Dropdown */}
               {isProfileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700 animate-fadeIn">
+                <div className="absolute right-0 mt-2 w-56 bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700 animate-fadeIn">
                   {!isAuthenticated ? (
                     <Link 
                       href="/signup" 
@@ -266,7 +187,7 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                     >
                       <span className="flex items-center">
                         <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-                        <span>Sign up</span>
+                        Sign up
                       </span>
                     </Link>
                   ) : (
@@ -282,7 +203,7 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                       >
                         <span className="flex items-center">
                           <UserCircleIcon className="h-4 w-4 mr-2" />
-                          <span>Your Profile</span>
+                          Your Profile
                         </span>
                       </Link>
                       <Link 
@@ -292,7 +213,7 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                       >
                         <span className="flex items-center">
                           <CogIcon className="h-4 w-4 mr-2" />
-                          <span>Settings</span>
+                          Settings
                         </span>
                       </Link>
                       <Link 
@@ -302,17 +223,18 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                       >
                         <span className="flex items-center">
                           <WalletIcon className="h-4 w-4 mr-2" />
-                          <span>Wallet</span>
+                          Wallet
                         </span>
                       </Link>
-                      <div className="border-t border-gray-700 my-1"></div>
+                      <div className="border-t border-gray-700 my-1" />
                       <button
+                        type="button"
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300"
                       >
                         <span className="flex items-center">
                           <ArrowRightStartOnRectangleIcon className="h-4 w-4 mr-2" />
-                          <span>Logout</span>
+                          Logout
                         </span>
                       </button>
                     </>
@@ -320,121 +242,13 @@ export default function AppLayout({ children, userPreference: propPreference }: 
                 </div>
               )}
             </div>
-            
-            {/* Mobile hamburger menu button - moved to right side */}
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-              className="md:hidden p-2 text-gray-400 hover:text-white"
-              aria-label="Open menu"
-            >
-              <Bars3Icon className="h-6 w-6" />
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile menu - Optimized for mobile devices */}
-      <div className={`
-        md:hidden fixed inset-0 z-40 bg-gray-900 transition-all duration-300 ease-in-out
-        ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
-      `}>
-        <div className={`
-          h-full w-full max-w-sm bg-gray-800 flex flex-col transition-transform duration-300 ease-in-out transform
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}>
-          {/* Header fixed at top */}
-          <div className="flex justify-between items-center h-14 px-4 bg-gray-800 border-b border-gray-700 flex-shrink-0">
-            <button 
-              onClick={() => setIsMobileMenuOpen(false)} 
-              className="p-2 text-gray-400 hover:text-white"
-              aria-label="Close menu"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-            <Link href="/" className="text-xl font-bold text-red-500">
-              SlutSpace
-            </Link>
-          </div>
-
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto pb-20 flex flex-col">
-            {/* Mobile menu navigation */}
-            <nav className="pt-4 px-2 flex-shrink-0">
-              <div className="space-y-1">
-                <Link href="/" className={sidebarLinkClass(pathname === '/')}>
-                  <HomeIcon className="h-6 w-6 mr-3" />
-                  <span>Home</span>
-                </Link>
-                <Link href="/library" className={sidebarLinkClass(pathname.startsWith('/library'))}>
-                  <RectangleStackIcon className="h-6 w-6 mr-3" />
-                  <span>Library</span>
-                </Link>
-                <Link href="/live/2" className={sidebarLinkClass(isForYouWatchRoute)}>
-                  <SparklesIcon className="h-6 w-6 mr-3" />
-                  <span>For You</span>
-                </Link>
-                <Link href="/live" className={sidebarLinkClass(isLiveBrowseRoute)}>
-                  <VideoCameraIcon className="h-6 w-6 mr-3" />
-                  <span>Live</span>
-                </Link>
-              </div>
-            </nav>
-
-            {/* Account Section - now at the bottom of scrollable area */}
-            <div className="px-2 py-4 mt-auto border-t border-gray-700">
-              <h3 className="px-4 text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Account
-              </h3>
-
-              <div className="space-y-1">
-                <Link href="/profile" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
-                  <UserCircleIcon className="h-6 w-6 mr-3" />
-                  <span>Profile</span>
-                </Link>
-                <Link href="/settings" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
-                  <CogIcon className="h-6 w-6 mr-3" />
-                  <span>Settings</span>
-                </Link>
-                <Link href="/signup" className="flex items-center px-4 py-2.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg">
-                  <ArrowRightOnRectangleIcon className="h-6 w-6 mr-3" />
-                  <span>Sign up</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex w-full min-w-0">
-        {/* Sidebar - Only visible on desktop (in flow with main so header can scroll away) */}
-        <aside className="hidden md:block w-64 shrink-0 bg-gray-800 text-white border-r border-gray-700">
-          <nav className="pt-4">
-            <div className="px-2 space-y-1">
-              <Link href="/" className={sidebarLinkClass(pathname === '/', 'px-4 py-2')}>
-                <HomeIcon className="h-6 w-6 mr-3" />
-                <span>Home</span>
-              </Link>
-              <Link href="/library" className={sidebarLinkClass(pathname.startsWith('/library'), 'px-4 py-2')}>
-                <RectangleStackIcon className="h-6 w-6 mr-3" />
-                <span>Library</span>
-              </Link>
-              <Link href="/live/2" className={sidebarLinkClass(isForYouWatchRoute, 'px-4 py-2')}>
-                <SparklesIcon className="h-6 w-6 mr-3" />
-                <span>For You</span>
-              </Link>
-              <Link href="/live" className={sidebarLinkClass(isLiveBrowseRoute, 'px-4 py-2')}>
-                <VideoCameraIcon className="h-6 w-6 mr-3" />
-                <span>Live</span>
-              </Link>
-            </div>
-          </nav>
-        </aside>
-        
-        {/* Main content */}
-        <main className="flex-1 min-w-0 w-full p-4 md:p-6 overflow-x-hidden">
-          {children}
-        </main>
-      </div>
+      <main className={`w-full flex-1 min-w-0 overflow-x-hidden ${isHomeRoute ? '' : 'p-4 md:p-6'}`}>
+        {children}
+      </main>
     </div>
   )
-} 
+}

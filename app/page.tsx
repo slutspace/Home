@@ -22,7 +22,7 @@ export default function HomePage() {
   return (
     <AppLayout>
       <AgeVerification />
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
         <section className="relative overflow-hidden rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 md:p-10">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-500/10 blur-3xl" />
           <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
