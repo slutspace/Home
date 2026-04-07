@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { consumerWatchHistory, consumerFavorites } from '../../utils/consumerProfileData'
-import { ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon } from '@heroicons/react/24/outline'
 
 export default function ConsumerOverviewContent({ avatarSrc }: { avatarSrc?: string | null }) {
   const previewHistory = consumerWatchHistory.slice(0, 3)
@@ -62,32 +62,6 @@ export default function ConsumerOverviewContent({ avatarSrc }: { avatarSrc?: str
             thumb: v.thumbnail,
           }))}
         />
-      </section>
-
-      <section className="rounded-xl border border-gray-700 bg-gray-800/40 p-6">
-        <div className="flex items-center gap-2 mb-3">
-          <SparklesIcon className="h-6 w-6 text-amber-400" />
-          <h3 className="text-lg font-semibold text-white">Become a creator</h3>
-        </div>
-        <p className="text-sm text-gray-400 mb-4">
-          Walk through eligibility, channel setup, and payouts. When you are ready, open the full creator studio to
-          manage posts, live, and monetization.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/profile/become-creator"
-            className="inline-flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
-          >
-            Start creator setup
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/profile/creator"
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-600 px-4 py-2.5 text-sm font-medium text-gray-200 hover:bg-gray-800 transition-colors"
-          >
-            Creator studio (full)
-          </Link>
-        </div>
       </section>
     </div>
   )
