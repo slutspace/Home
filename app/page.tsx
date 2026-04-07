@@ -12,7 +12,6 @@ import {
   VideoCameraIcon,
   ClockIcon,
   UserCircleIcon,
-  Cog6ToothIcon,
   ArrowRightIcon,
   PencilSquareIcon,
   EnvelopeIcon,
@@ -163,8 +162,16 @@ export default function HomePage() {
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
         {/* Profile snapshot & completion — home dashboard */}
         <section className="rounded-2xl border border-gray-700 bg-gray-800/30 overflow-hidden">
-          <div className="grid lg:grid-cols-5 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-700">
-            <div className="lg:col-span-3 p-6 md:p-8 space-y-6">
+          <input
+            ref={uploadInputRef}
+            type="file"
+            className="hidden"
+            accept="video/*,image/*"
+            multiple
+            aria-hidden
+            onChange={onUploadChange}
+          />
+          <div className="p-6 md:p-8 space-y-6">
               {/* Always side-by-side with identity (scroll horizontally on very narrow screens) */}
               <div className="flex flex-row flex-nowrap items-stretch gap-4 min-w-0 overflow-x-auto overflow-y-visible scrollbar-site pb-1 -mx-1 px-1">
                 <div className="flex flex-row items-start gap-4 min-w-0 flex-1">
@@ -190,12 +197,14 @@ export default function HomePage() {
                         <PencilSquareIcon className="h-4 w-4" />
                         Edit profile
                       </Link>
-                      <Link
-                        href="/settings"
-                        className="inline-flex items-center rounded-lg border border-gray-600 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700/60 transition-colors"
+                      <button
+                        type="button"
+                        onClick={() => uploadInputRef.current?.click()}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-600 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700/60 transition-colors"
                       >
-                        Settings
-                      </Link>
+                        <ArrowUpTrayIcon className="h-4 w-4 text-red-400" />
+                        Upload
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -262,28 +271,6 @@ export default function HomePage() {
                   <p className="text-[10px] text-gray-500 uppercase tracking-wide">Comments left</p>
                 </div>
               </div>
-            </div>
-
-            <div className="lg:col-span-2 p-6 md:p-8 space-y-6 bg-gray-900/20">
-              <input
-                ref={uploadInputRef}
-                type="file"
-                className="hidden"
-                accept="video/*,image/*"
-                multiple
-                aria-hidden
-                onChange={onUploadChange}
-              />
-              <button
-                type="button"
-                onClick={() => uploadInputRef.current?.click()}
-                aria-label="Upload photos or videos"
-                className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-600 bg-gray-800/50 px-4 py-8 text-sm font-medium text-gray-200 hover:border-red-500/50 hover:bg-gray-800 hover:text-white transition-colors"
-              >
-                <ArrowUpTrayIcon className="h-6 w-6 text-red-400" />
-                Upload photos or videos
-              </button>
-            </div>
           </div>
         </section>
 
@@ -327,7 +314,16 @@ export default function HomePage() {
             <ExploreCard href="/live/2" icon={SparklesIcon} title="For You" subtitle="Your live stream" />
             <ExploreCard href="/live" icon={VideoCameraIcon} title="Live" subtitle="Browse & filter streams" />
             <ExploreCard href="/profile/become-creator" icon={VideoCameraIcon} title="Go creator" subtitle="Start earning" accent />
-            <ExploreCard href="/settings" icon={Cog6ToothIcon} title="Settings" subtitle="Account & privacy" />
+            <button
+              type="button"
+              onClick={() => uploadInputRef.current?.click()}
+              aria-label="Upload photos and videos"
+              className="flex flex-col rounded-xl border p-4 transition-all hover:scale-[1.02] border-gray-700 bg-gray-800/50 hover:border-gray-600 text-left focus:outline-none focus:ring-2 focus:ring-red-500/40 focus:ring-offset-2 focus:ring-offset-gray-900"
+            >
+              <ArrowUpTrayIcon className="h-7 w-7 mb-3 text-gray-400" />
+              <span className="font-medium text-white">Upload</span>
+              <span className="text-xs text-gray-500 mt-1">Photos & videos</span>
+            </button>
           </div>
         </section>
 
