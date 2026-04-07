@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo, type ChangeEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import AppLayout from './components/AppLayout'
@@ -38,17 +38,204 @@ const profileNavLinks = [
 ] as const
 
 const completionTasks = [
-  { label: 'Add and verify your email', bonus: '+5%', done: false },
-  { label: 'Verify your identity', bonus: '+20%', done: false },
-  { label: 'Upload your first video', bonus: '', done: false },
-  { label: 'Upload your first photo', bonus: '', done: false },
-  { label: 'Create your first post', bonus: '', done: false },
-  { label: 'Meet new friends', bonus: '', done: false },
+  { label: 'Add and verify your email', bonus: '+5%', key: 'email' as const },
+  { label: 'Verify your identity', bonus: '+20%', key: 'identity' as const },
+  { label: 'Upload your first video', bonus: '', key: 'video' as const },
+  { label: 'Upload your first photo', bonus: '', key: 'photo' as const },
+  { label: 'Create your first post', bonus: '', key: 'post' as const },
+  { label: 'Meet new friends', bonus: '', key: 'friends' as const },
 ] as const
 
+const DASH_KEY = 'slutspace_dashboard_v1'
+const LAST_VISIT_KEY = 'slutspace_dash_last_visit'
+const SESSION_VIEW_KEY = 'slutspace_dash_viewed_session'
+
+type DashPersist = {
+  status: string
+  emailVerified: boolean
+  identityDone: boolean
+  postDone: boolean
+  friendsDone: boolean
+  uploadedVideo: boolean
+  uploadedPhoto: boolean
+  profileViews: number
+}
+
+const defaultDash: DashPersist = {
+  status: '',
+  emailVerified: false,
+  identityDone: false,
+  postDone: false,
+  friendsDone: false,
+  uploadedVideo: false,
+  uploadedPhoto: false,
+  profileViews: 1,
+}
+
+function loadDash(): DashPersist {
+  if (typeof window === 'undefined') return defaultDash
+  try {
+    const raw = localStorage.getItem(DASH_KEY)
+    if (!raw) return defaultDash
+    return { ...defaultDash, ...JSON.parse(raw) }
+  } catch {
+    return defaultDash
+  }
+}
+
+function saveDash(p: DashPersist) {
+  try {
+    localStorage.setItem(DASH_KEY, JSON.stringify(p))
+  } catch {
+    /* ignore quota */
+  }
+}
+
+function profilePercent(d: DashPersist): number {
+  let t = 0
+  if (d.status.trim().length > 0) t += 10
+  if (d.emailVerified) t += 5
+  if (d.identityDone) t += 20
+  if (d.uploadedVideo) t += 15
+  if (d.uploadedPhoto) t += 15
+  if (d.postDone) t += 17
+  if (d.friendsDone) t += 18
+  return Math.min(100, t)
+}
+
+function isTaskDone(d: DashPersist, key: (typeof completionTasks)[number]['key']): boolean {
+  switch (key) {
+    case 'email':
+      return d.emailVerified
+    case 'identity':
+      return d.identityDone
+    case 'video':
+      return d.uploadedVideo
+    case 'photo':
+      return d.uploadedPhoto
+    case 'post':
+      return d.postDone
+    case 'friends':
+      return d.friendsDone
+    default:
+      return false
+  }
+}
+
 export default function HomePage() {
-  const [status, setStatus] = useState('')
+  const [dash, setDash] = useState<DashPersist>(defaultDash)
+  const [hydrated, setHydrated] = useState(false)
+  const [lastSeenLabel, setLastSeenLabel] = useState('Last seen 5 days ago · 46 days on SlutSpace')
   const uploadInputRef = useRef<HTMLInputElement>(null)
+  const dashRef = useRef(dash)
+  dashRef.current = dash
+
+  useEffect(() => {
+    const loaded = loadDash()
+    setDash(loaded)
+
+    const prevVisit = localStorage.getItem(LAST_VISIT_KEY)
+    if (prevVisit) {
+      const ms = Date.now() - parseInt(prevVisit, 10)
+      const days = Math.floor(ms / 86400000)
+      const part =
+        days < 1
+          ? 'Last seen today'
+          : days === 1
+            ? 'Last seen yesterday'
+            : `Last seen ${days} days ago`
+      setLastSeenLabel(`${part} · 46 days on SlutSpace`)
+    }
+    localStorage.setItem(LAST_VISIT_KEY, String(Date.now()))
+
+    if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem(SESSION_VIEW_KEY)) {
+      sessionStorage.setItem(SESSION_VIEW_KEY, '1')
+      const next = { ...loaded, profileViews: loaded.profileViews + 1 }
+      setDash(next)
+      saveDash(next)
+    }
+
+    setHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated) return
+    const id = setTimeout(() => saveDash(dashRef.current), 400)
+    return () => clearTimeout(id)
+  }, [dash.status, hydrated])
+
+  const updateDash = useCallback((patch: Partial<DashPersist>) => {
+    setDash((prev) => {
+      const next = { ...prev, ...patch }
+      saveDash(next)
+      return next
+    })
+  }, [])
+
+  const pct = useMemo(() => profilePercent(dash), [dash])
+
+  const setStatus = useCallback((value: string) => {
+    setDash((prev) => ({ ...prev, status: value }))
+  }, [])
+
+  const verifyEmail = useCallback(() => {
+    if (dash.emailVerified) return
+    updateDash({ emailVerified: true })
+  }, [dash.emailVerified, updateDash])
+
+  const toggleTask = useCallback(
+    (key: (typeof completionTasks)[number]['key']) => {
+      if (key === 'email') {
+        verifyEmail()
+        return
+      }
+      if (key === 'video' || key === 'photo') {
+        uploadInputRef.current?.click()
+        return
+      }
+      if (key === 'identity') {
+        setDash((prev) => {
+          const next = { ...prev, identityDone: !prev.identityDone }
+          saveDash(next)
+          return next
+        })
+        return
+      }
+      if (key === 'post') {
+        setDash((prev) => {
+          const next = { ...prev, postDone: !prev.postDone }
+          saveDash(next)
+          return next
+        })
+        return
+      }
+      if (key === 'friends') {
+        setDash((prev) => {
+          const next = { ...prev, friendsDone: !prev.friendsDone }
+          saveDash(next)
+          return next
+        })
+      }
+    },
+    [verifyEmail]
+  )
+
+  const onUploadChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files
+      if (!files?.length) return
+      let video = dash.uploadedVideo
+      let photo = dash.uploadedPhoto
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i]
+        if (f.type.startsWith('video/')) video = true
+        if (f.type.startsWith('image/')) photo = true
+      }
+      updateDash({ uploadedVideo: video, uploadedPhoto: photo })
+      e.target.value = ''
+    },
+    [dash.uploadedPhoto, dash.uploadedVideo, updateDash]
+  )
 
   return (
     <AppLayout>
@@ -74,7 +261,7 @@ export default function HomePage() {
                         Newbie
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">Last seen 5 days ago · 46 days on SlutSpace</p>
+                    <p className="text-xs text-gray-500">{lastSeenLabel}</p>
                     <div className="flex flex-wrap gap-2">
                       <Link
                         href="/profile/creator"
@@ -92,25 +279,37 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="shrink-0 w-[min(100%,17rem)] sm:w-64 self-stretch rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 flex flex-col justify-center">
+                <button
+                  type="button"
+                  onClick={verifyEmail}
+                  disabled={dash.emailVerified}
+                  className="shrink-0 w-[min(100%,17rem)] sm:w-64 self-stretch rounded-xl border border-amber-500/25 bg-amber-500/5 p-4 flex flex-col justify-center text-left transition-opacity disabled:opacity-90 cursor-pointer hover:bg-amber-500/10 disabled:hover:bg-amber-500/5 disabled:cursor-default"
+                >
                   <div className="flex items-start gap-3">
                     <EnvelopeIcon className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-white">Verify your email</p>
+                      <p className="text-sm font-medium text-white">
+                        {dash.emailVerified ? 'Email verified' : 'Verify your email'}
+                      </p>
                       <p className="text-sm text-gray-400 mt-0.5 break-all">t*********r@m**l.com</p>
                     </div>
-                    <span className="text-xs font-semibold text-amber-400 shrink-0">+5%</span>
+                    <span className="text-xs font-semibold text-amber-400 shrink-0">
+                      {dash.emailVerified ? '✓' : '+5%'}
+                    </span>
                   </div>
-                </div>
+                </button>
               </div>
 
               <div>
                 <div className="flex justify-between text-xs text-gray-400 mb-1.5">
                   <span>Profile filled</span>
-                  <span className="text-red-400 font-medium">0%</span>
+                  <span className="text-red-400 font-medium">{hydrated ? pct : 0}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-gray-900 overflow-hidden border border-gray-700">
-                  <div className="h-full w-0 rounded-full bg-gradient-to-r from-red-500 to-pink-500" />
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-red-500 to-pink-500 transition-[width] duration-300 ease-out"
+                    style={{ width: `${hydrated ? pct : 0}%` }}
+                  />
                 </div>
               </div>
 
@@ -129,7 +328,7 @@ export default function HomePage() {
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-xl bg-gray-900/60 border border-gray-700 py-3 px-2">
                   <EyeIcon className="h-4 w-4 text-gray-500 mx-auto mb-1" />
-                  <p className="text-lg font-semibold text-white">1</p>
+                  <p className="text-lg font-semibold text-white">{dash.profileViews}</p>
                   <p className="text-[10px] text-gray-500 uppercase tracking-wide">Profile views</p>
                 </div>
                 <div className="rounded-xl bg-gray-900/60 border border-gray-700 py-3 px-2">
@@ -151,7 +350,7 @@ export default function HomePage() {
                 <textarea
                   id="home-status"
                   rows={3}
-                  value={status}
+                  value={dash.status}
                   onChange={(e) => setStatus(e.target.value)}
                   placeholder="Write your status here..."
                   className="w-full rounded-xl bg-gray-900 border border-gray-700 text-sm text-white placeholder-gray-500 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/40 resize-none"
@@ -167,6 +366,7 @@ export default function HomePage() {
                 accept="video/*,image/*"
                 multiple
                 aria-hidden
+                onChange={onUploadChange}
               />
               <button
                 type="button"
@@ -184,11 +384,17 @@ export default function HomePage() {
                   Complete your profile
                 </h3>
                 <ul className="space-y-2">
-                  {completionTasks.map((task) => (
+                  {completionTasks.map((task) => {
+                    const done = isTaskDone(dash, task.key)
+                    return (
                     <li
                       key={task.label}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-gray-700/80 bg-gray-800/40 px-3 py-2.5 text-sm"
                     >
+                      <button
+                        type="button"
+                        onClick={() => toggleTask(task.key)}
+                        className={`w-full flex items-center justify-between gap-3 rounded-lg border border-gray-700/80 bg-gray-800/40 px-3 py-2.5 text-sm text-left transition-colors hover:bg-gray-800/70 ${done ? 'opacity-75' : ''}`}
+                      >
                       <span className="text-gray-300 flex items-center gap-2 min-w-0">
                         {task.label === 'Upload your first video' && (
                           <VideoCameraIcon className="h-4 w-4 text-gray-500 shrink-0" />
@@ -211,12 +417,16 @@ export default function HomePage() {
                         <span>{task.label}</span>
                       </span>
                       {task.bonus ? (
-                        <span className="text-xs font-medium text-amber-400 shrink-0">{task.bonus}</span>
+                        <span className="text-xs font-medium text-amber-400 shrink-0">
+                          {done ? '✓' : task.bonus}
+                        </span>
                       ) : (
-                        <span className="text-xs text-gray-600 shrink-0">—</span>
+                        <span className="text-xs text-gray-600 shrink-0">{done ? '✓' : '—'}</span>
                       )}
+                      </button>
                     </li>
-                  ))}
+                    )
+                  })}
                 </ul>
               </div>
             </div>
