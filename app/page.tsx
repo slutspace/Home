@@ -23,7 +23,7 @@ import {
 
 const continueWatching = allVideos
   .filter((v) => !v.title.startsWith('Mature Woman with Young Man on Couch'))
-  .slice(0, 5)
+  .slice(0, 4)
 
 const profileNavLinks = [
   { label: 'My Profile', href: '/profile' },
