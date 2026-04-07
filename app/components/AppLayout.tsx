@@ -41,9 +41,6 @@ interface AppLayoutProps {
 export default function AppLayout({ children, userPreference: propPreference }: AppLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [isWalletExpanded, setIsWalletExpanded] = useState(false);
-  const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [userPreference, setUserPreference] = useState<'submissive' | 'dominant' | null>(null);
   const [userColor, setUserColor] = useState<'purple' | 'red' | null>(null);
@@ -112,35 +109,6 @@ export default function AppLayout({ children, userPreference: propPreference }: 
     };
   }, []);
   
-  // Handle header visibility on scroll
-  useEffect(() => {
-    // Only run in browser environment
-    if (typeof window === 'undefined') return;
-    
-    const controlHeader = () => {
-      if (window.innerWidth < 768) { // only apply for mobile view
-        if (window.scrollY > lastScrollY && window.scrollY > 50) {
-          // Scrolling down - hide header
-          setShowHeader(false);
-        } else {
-          // Scrolling up - show header
-          setShowHeader(true);
-        }
-        setLastScrollY(window.scrollY);
-      } else {
-        // Always show header on desktop
-        setShowHeader(true);
-      }
-    };
-
-    window.addEventListener('scroll', controlHeader);
-    
-    // Clean up 
-    return () => {
-      window.removeEventListener('scroll', controlHeader);
-    };
-  }, [lastScrollY]);
-  
   // Handle body scroll when mobile menu is open
   useEffect(() => {
     // Only run in browser environment
@@ -197,12 +165,8 @@ export default function AppLayout({ children, userPreference: propPreference }: 
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Header */}
-      <header 
-        className={`bg-gray-800 sticky top-0 z-50 transition-transform duration-300 ${
-          showHeader ? 'transform-none' : '-translate-y-full'
-        }`}
-      >
+      {/* Header — in document flow (scrolls with page), not sticky */}
+      <header className="bg-gray-800 relative z-50 border-b border-gray-700">
         <div className="flex justify-between items-center h-14 px-4">
           {/* Left section - Logo */}
           <div className="flex items-center">
@@ -435,9 +399,9 @@ export default function AppLayout({ children, userPreference: propPreference }: 
         </div>
       </div>
 
-      <div className="flex">
-        {/* Sidebar - Only visible on desktop */}
-        <aside className="hidden md:block w-64 bg-gray-800 text-white min-h-screen fixed top-14">
+      <div className="flex w-full min-w-0">
+        {/* Sidebar - Only visible on desktop (in flow with main so header can scroll away) */}
+        <aside className="hidden md:block w-64 shrink-0 bg-gray-800 text-white border-r border-gray-700">
           <nav className="pt-4">
             <div className="px-2 space-y-1">
               <Link href="/" className={sidebarLinkClass(pathname === '/', 'px-4 py-2')}>
@@ -461,7 +425,7 @@ export default function AppLayout({ children, userPreference: propPreference }: 
         </aside>
         
         {/* Main content */}
-        <main className="w-full md:ml-64 p-4 md:p-6 overflow-x-hidden">
+        <main className="flex-1 min-w-0 w-full p-4 md:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>
