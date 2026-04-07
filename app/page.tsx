@@ -16,9 +16,6 @@ import {
   ArrowRightIcon,
   PencilSquareIcon,
   EnvelopeIcon,
-  ShieldCheckIcon,
-  PhotoIcon,
-  DocumentTextIcon,
   UserGroupIcon,
   EyeIcon,
   ChatBubbleBottomCenterTextIcon,
@@ -37,36 +34,19 @@ const profileNavLinks = [
   { label: 'Favorites', href: '/profile/favorites' },
 ] as const
 
-const completionTasks = [
-  { label: 'Add and verify your email', bonus: '+5%', key: 'email' as const },
-  { label: 'Verify your identity', bonus: '+20%', key: 'identity' as const },
-  { label: 'Upload your first video', bonus: '', key: 'video' as const },
-  { label: 'Upload your first photo', bonus: '', key: 'photo' as const },
-  { label: 'Create your first post', bonus: '', key: 'post' as const },
-  { label: 'Meet new friends', bonus: '', key: 'friends' as const },
-] as const
-
 const DASH_KEY = 'slutspace_dashboard_v1'
 const LAST_VISIT_KEY = 'slutspace_dash_last_visit'
 const SESSION_VIEW_KEY = 'slutspace_dash_viewed_session'
 
 type DashPersist = {
-  status: string
   emailVerified: boolean
-  identityDone: boolean
-  postDone: boolean
-  friendsDone: boolean
   uploadedVideo: boolean
   uploadedPhoto: boolean
   profileViews: number
 }
 
 const defaultDash: DashPersist = {
-  status: '',
   emailVerified: false,
-  identityDone: false,
-  postDone: false,
-  friendsDone: false,
   uploadedVideo: false,
   uploadedPhoto: false,
   profileViews: 1,
@@ -77,7 +57,18 @@ function loadDash(): DashPersist {
   try {
     const raw = localStorage.getItem(DASH_KEY)
     if (!raw) return defaultDash
-    return { ...defaultDash, ...JSON.parse(raw) }
+    const o = JSON.parse(raw) as Record<string, unknown>
+    const views = o.profileViews
+    return {
+      ...defaultDash,
+      emailVerified: Boolean(o.emailVerified),
+      uploadedVideo: Boolean(o.uploadedVideo),
+      uploadedPhoto: Boolean(o.uploadedPhoto),
+      profileViews:
+        typeof views === 'number' && Number.isFinite(views) && views >= 1
+          ? Math.floor(views)
+          : defaultDash.profileViews,
+    }
   } catch {
     return defaultDash
   }
@@ -93,33 +84,10 @@ function saveDash(p: DashPersist) {
 
 function profilePercent(d: DashPersist): number {
   let t = 0
-  if (d.status.trim().length > 0) t += 10
-  if (d.emailVerified) t += 5
-  if (d.identityDone) t += 20
-  if (d.uploadedVideo) t += 15
-  if (d.uploadedPhoto) t += 15
-  if (d.postDone) t += 17
-  if (d.friendsDone) t += 18
+  if (d.emailVerified) t += 34
+  if (d.uploadedVideo) t += 33
+  if (d.uploadedPhoto) t += 33
   return Math.min(100, t)
-}
-
-function isTaskDone(d: DashPersist, key: (typeof completionTasks)[number]['key']): boolean {
-  switch (key) {
-    case 'email':
-      return d.emailVerified
-    case 'identity':
-      return d.identityDone
-    case 'video':
-      return d.uploadedVideo
-    case 'photo':
-      return d.uploadedPhoto
-    case 'post':
-      return d.postDone
-    case 'friends':
-      return d.friendsDone
-    default:
-      return false
-  }
 }
 
 export default function HomePage() {
@@ -127,8 +95,6 @@ export default function HomePage() {
   const [hydrated, setHydrated] = useState(false)
   const [lastSeenLabel, setLastSeenLabel] = useState('Last seen 5 days ago · 46 days on SlutSpace')
   const uploadInputRef = useRef<HTMLInputElement>(null)
-  const dashRef = useRef(dash)
-  dashRef.current = dash
 
   useEffect(() => {
     const loaded = loadDash()
@@ -158,12 +124,6 @@ export default function HomePage() {
     setHydrated(true)
   }, [])
 
-  useEffect(() => {
-    if (!hydrated) return
-    const id = setTimeout(() => saveDash(dashRef.current), 400)
-    return () => clearTimeout(id)
-  }, [dash.status, hydrated])
-
   const updateDash = useCallback((patch: Partial<DashPersist>) => {
     setDash((prev) => {
       const next = { ...prev, ...patch }
@@ -174,68 +134,28 @@ export default function HomePage() {
 
   const pct = useMemo(() => profilePercent(dash), [dash])
 
-  const setStatus = useCallback((value: string) => {
-    setDash((prev) => ({ ...prev, status: value }))
-  }, [])
-
   const verifyEmail = useCallback(() => {
     if (dash.emailVerified) return
     updateDash({ emailVerified: true })
   }, [dash.emailVerified, updateDash])
 
-  const toggleTask = useCallback(
-    (key: (typeof completionTasks)[number]['key']) => {
-      if (key === 'email') {
-        verifyEmail()
-        return
-      }
-      if (key === 'video' || key === 'photo') {
-        uploadInputRef.current?.click()
-        return
-      }
-      if (key === 'identity') {
-        setDash((prev) => {
-          const next = { ...prev, identityDone: !prev.identityDone }
-          saveDash(next)
-          return next
-        })
-        return
-      }
-      if (key === 'post') {
-        setDash((prev) => {
-          const next = { ...prev, postDone: !prev.postDone }
-          saveDash(next)
-          return next
-        })
-        return
-      }
-      if (key === 'friends') {
-        setDash((prev) => {
-          const next = { ...prev, friendsDone: !prev.friendsDone }
-          saveDash(next)
-          return next
-        })
-      }
-    },
-    [verifyEmail]
-  )
-
-  const onUploadChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files
-      if (!files?.length) return
-      let video = dash.uploadedVideo
-      let photo = dash.uploadedPhoto
+  const onUploadChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files?.length) return
+    setDash((prev) => {
+      let video = prev.uploadedVideo
+      let photo = prev.uploadedPhoto
       for (let i = 0; i < files.length; i++) {
         const f = files[i]
         if (f.type.startsWith('video/')) video = true
         if (f.type.startsWith('image/')) photo = true
       }
-      updateDash({ uploadedVideo: video, uploadedPhoto: photo })
-      e.target.value = ''
-    },
-    [dash.uploadedPhoto, dash.uploadedVideo, updateDash]
-  )
+      const next = { ...prev, uploadedVideo: video, uploadedPhoto: photo }
+      saveDash(next)
+      return next
+    })
+    e.target.value = ''
+  }, [])
 
   return (
     <AppLayout>
@@ -342,20 +262,6 @@ export default function HomePage() {
                   <p className="text-[10px] text-gray-500 uppercase tracking-wide">Comments left</p>
                 </div>
               </div>
-
-              <div>
-                <label htmlFor="home-status" className="sr-only">
-                  Your status
-                </label>
-                <textarea
-                  id="home-status"
-                  rows={3}
-                  value={dash.status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  placeholder="Write your status here..."
-                  className="w-full rounded-xl bg-gray-900 border border-gray-700 text-sm text-white placeholder-gray-500 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500/40 resize-none"
-                />
-              </div>
             </div>
 
             <div className="lg:col-span-2 p-6 md:p-8 space-y-6 bg-gray-900/20">
@@ -377,58 +283,6 @@ export default function HomePage() {
                 <ArrowUpTrayIcon className="h-6 w-6 text-red-400" />
                 Upload photos or videos
               </button>
-
-              <div>
-                <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <ShieldCheckIcon className="h-4 w-4 text-gray-400" />
-                  Complete your profile
-                </h3>
-                <ul className="space-y-2">
-                  {completionTasks.map((task) => {
-                    const done = isTaskDone(dash, task.key)
-                    return (
-                    <li
-                      key={task.label}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleTask(task.key)}
-                        className={`w-full flex items-center justify-between gap-3 rounded-lg border border-gray-700/80 bg-gray-800/40 px-3 py-2.5 text-sm text-left transition-colors hover:bg-gray-800/70 ${done ? 'opacity-75' : ''}`}
-                      >
-                      <span className="text-gray-300 flex items-center gap-2 min-w-0">
-                        {task.label === 'Upload your first video' && (
-                          <VideoCameraIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        {task.label === 'Upload your first photo' && (
-                          <PhotoIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        {task.label === 'Create your first post' && (
-                          <DocumentTextIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        {task.label === 'Meet new friends' && (
-                          <UserGroupIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        {task.label === 'Add and verify your email' && (
-                          <EnvelopeIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        {task.label === 'Verify your identity' && (
-                          <ShieldCheckIcon className="h-4 w-4 text-gray-500 shrink-0" />
-                        )}
-                        <span>{task.label}</span>
-                      </span>
-                      {task.bonus ? (
-                        <span className="text-xs font-medium text-amber-400 shrink-0">
-                          {done ? '✓' : task.bonus}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-600 shrink-0">{done ? '✓' : '—'}</span>
-                      )}
-                      </button>
-                    </li>
-                    )
-                  })}
-                </ul>
-              </div>
             </div>
           </div>
         </section>
