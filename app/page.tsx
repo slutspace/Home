@@ -21,9 +21,7 @@ import {
   ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline'
 
-const continueWatching = allVideos
-  .filter((v) => !v.title.startsWith('Mature Woman with Young Man on Couch'))
-  .slice(0, 4)
+const continueWatching = allVideos.slice(0, 5)
 
 const profileNavLinks = [
   { label: 'Videos', href: '/library' },
