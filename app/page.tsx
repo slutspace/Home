@@ -6,7 +6,6 @@ import Image from 'next/image'
 import AppLayout from './components/AppLayout'
 import AgeVerification from './components/AgeVerification'
 import { allVideos } from '../utils/videoData'
-import { consumerWatchHistory } from '../utils/consumerProfileData'
 import {
   RectangleStackIcon,
   SparklesIcon,
@@ -55,42 +54,6 @@ export default function HomePage() {
     <AppLayout>
       <AgeVerification />
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-        <section className="relative overflow-hidden rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-800 via-gray-900 to-black p-8 md:p-10">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-red-500/10 blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="space-y-3">
-              <p className="text-sm font-medium uppercase tracking-wider text-red-400">Home</p>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">Welcome back</h1>
-              <p className="text-gray-400 max-w-xl">
-                Jump back into what you were watching, open your library, or manage your account — all from one place.
-              </p>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Link
-                  href="/library"
-                  className="inline-flex items-center gap-2 rounded-full bg-red-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
-                >
-                  <RectangleStackIcon className="h-5 w-5" />
-                  Open Library
-                </Link>
-                <Link
-                  href="/live/2"
-                  className="inline-flex items-center gap-2 rounded-full border border-gray-600 bg-gray-800/80 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
-                >
-                  <SparklesIcon className="h-5 w-5" />
-                  For You stream
-                </Link>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 min-w-[240px] md:min-w-[280px]">
-              <StatCard label="Watch history" value={`${consumerWatchHistory.length}+`} href="/profile/history" />
-              <StatCard label="Favorites" value="Saved" href="/profile/favorites" />
-              <StatCard label="Wallet" value="Tokens" href="/wallet" />
-              <StatCard label="Profile" value="Account" href="/profile" />
-            </div>
-          </div>
-        </section>
-
         {/* Profile snapshot & completion — home dashboard */}
         <section className="rounded-2xl border border-gray-700 bg-gray-800/30 overflow-hidden">
           <div className="grid lg:grid-cols-5 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-700">
@@ -365,18 +328,6 @@ export default function HomePage() {
         </section>
       </div>
     </AppLayout>
-  )
-}
-
-function StatCard({ label, value, href }: { label: string; value: string; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-xl border border-gray-700/80 bg-black/30 px-4 py-3 hover:border-red-500/40 hover:bg-black/40 transition-colors"
-    >
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-lg font-semibold text-white mt-0.5">{value}</p>
-    </Link>
   )
 }
 
