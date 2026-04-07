@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, useMemo, type ChangeEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, type ChangeEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import AppLayout from './components/AppLayout'
@@ -13,7 +13,8 @@ import {
   UserGroupIcon,
   EyeIcon,
   ChatBubbleBottomCenterTextIcon,
-  ArrowUpTrayIcon,
+  VideoCameraIcon,
+  PlusIcon,
   CurrencyDollarIcon,
   XMarkIcon,
   ArrowTopRightOnSquareIcon,
@@ -114,14 +115,6 @@ function saveDash(p: DashPersist) {
   }
 }
 
-function profilePercent(d: DashPersist): number {
-  let t = 0
-  if (d.profileAvatar) t += 34
-  if (d.uploadedVideo) t += 33
-  if (d.uploadedPhoto) t += 33
-  return Math.min(100, t)
-}
-
 function formatCoins(n: number) {
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -178,16 +171,6 @@ export default function HomePage() {
       document.body.style.overflow = ''
     }
   }, [walletModalOpen])
-
-  const updateDash = useCallback((patch: Partial<DashPersist>) => {
-    setDash((prev) => {
-      const next = { ...prev, ...patch }
-      saveDash(next)
-      return next
-    })
-  }, [])
-
-  const pct = useMemo(() => profilePercent(dash), [dash])
 
   const onUploadChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -313,10 +296,11 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={() => uploadInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-600 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-700/60 transition-colors"
+                      aria-label="Upload photos or videos"
+                      className="inline-flex items-center justify-center gap-0.5 rounded-lg border border-gray-600 px-2.5 py-2 text-gray-300 hover:bg-gray-700/60 transition-colors"
                     >
-                      <ArrowUpTrayIcon className="h-4 w-4 text-red-400" />
-                      Upload
+                      <VideoCameraIcon className="h-5 w-5 text-red-400" />
+                      <PlusIcon className="h-4 w-4 text-white" />
                     </button>
                   </div>
                 </div>
@@ -340,19 +324,6 @@ export default function HomePage() {
                   <ArrowTopRightOnSquareIcon className="h-4 w-4 text-emerald-400/80 shrink-0 mt-1" />
                 </div>
               </button>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                <span>Profile filled</span>
-                <span className="text-red-400 font-medium">{hydrated ? pct : 0}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-gray-900 overflow-hidden border border-gray-700">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-red-500 to-pink-500 transition-[width] duration-300 ease-out"
-                  style={{ width: `${hydrated ? pct : 0}%` }}
-                />
-              </div>
             </div>
 
             <nav className="flex flex-wrap gap-2">
