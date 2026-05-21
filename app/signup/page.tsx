@@ -4,12 +4,19 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowTopRightOnSquareIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { setCreatorKycEligible } from '../../utils/creatorKycGate'
 
 export default function SignupPage() {
   const router = useRouter()
+  const [fromProfile, setFromProfile] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [countdown, setCountdown] = useState(5)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    setFromProfile(searchParams.get('from') === 'profile')
+  }, [])
 
   // Check for error parameter in URL
   useEffect(() => {
@@ -46,6 +53,12 @@ export default function SignupPage() {
   }, [isRedirecting])
 
   const handleRedirectToCoinbase = () => {
+    if (fromProfile) {
+      setCreatorKycEligible()
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('isAuthenticated', 'true')
+      }
+    }
     setIsRedirecting(true)
   }
 

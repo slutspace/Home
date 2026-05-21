@@ -29,6 +29,12 @@ export default function ConsumerOverviewContent({ avatarSrc }: { avatarSrc?: str
           <p className="text-sm text-gray-400 mt-1">alex.viewer@example.com · Member since 2024</p>
           <div className="flex flex-wrap gap-2 mt-4">
             <Link
+              href="/signup?from=profile"
+              className="text-sm rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition-colors font-semibold"
+            >
+              Sign up
+            </Link>
+            <Link
               href="/settings"
               className="text-sm rounded-lg bg-gray-700 px-4 py-2 text-white hover:bg-gray-600 transition-colors"
             >

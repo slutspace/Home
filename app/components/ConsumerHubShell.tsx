@@ -28,7 +28,7 @@ export default function ConsumerHubShell({
     { href: overviewHref, label: 'Overview', icon: UserCircleIcon, match: 'exact' },
     { href: '/profile/history', label: 'History', icon: ClockIcon, match: 'prefix' },
     { href: '/profile/favorites', label: 'Favorites', icon: HeartIcon, match: 'prefix' },
-    { href: '/profile/creator', label: 'Creator studio', icon: FilmIcon, match: 'prefix' },
+    { href: '/profile/creator/studio', label: 'Creator studio', icon: FilmIcon, match: 'prefix' },
   ]
 
   return (

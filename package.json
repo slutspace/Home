@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3004",
+    "dev": "next dev -p 3006",
     "build": "next build",
     "start": "next start"
   },
@@ -13,7 +13,7 @@
     "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.17",
     "firebase": "^10.8.0",
-    "framer-motion": "^12.9.2",
+    "framer-motion": "^11.18.2",
     "next": "14.1.0",
     "next-auth": "^4.24.5",
     "postcss": "^8.4.35",

@@ -11,7 +11,6 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline'
-
 const STORAGE_KEY = 'slutspace_creator_onboarding_done'
 
 const steps = [
@@ -148,7 +147,7 @@ export default function BecomeCreatorPage() {
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
             <Link
-              href="/profile/creator"
+              href="/profile/creator/studio"
               className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500"
             >
               Open Creator studio
